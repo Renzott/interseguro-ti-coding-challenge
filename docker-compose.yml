@@ -11,7 +11,7 @@ services:
     environment:
       PORT: "3001"
       GO_ENV: development
-      CORS_ORIGIN: "http://localhost:4321,http://127.0.0.1:4321"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4321,http://127.0.0.1:4321}
       EXPRESS_API_URL: "http://express-api:3002"
       DEMO_PASS_CODE: ${DEMO_PASS_CODE:-482916}
       OTP_SECRET: ${OTP_SECRET:-JBSWY3DPEHPK3PXP}
@@ -50,7 +50,7 @@ services:
     environment:
       PORT: "3002"
       NODE_ENV: development
-      CORS_ORIGIN: "http://localhost:4321,http://127.0.0.1:4321"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4321,http://127.0.0.1:4321}
       JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
       CHOKIDAR_USEPOLLING: "true"
       CHOKIDAR_INTERVAL: "300"

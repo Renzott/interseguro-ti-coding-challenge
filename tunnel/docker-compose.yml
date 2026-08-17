@@ -1,0 +1,23 @@
+name: interseguro-tunnels
+
+networks:
+  app:
+    name: interseguro-ti-2024_default
+    external: true
+
+services:
+  tunnel-fiber:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-fiber-tunnel
+    command: tunnel --no-autoupdate --url http://fiber-api:3001
+    networks:
+      - app
+    restart: unless-stopped
+
+  tunnel-astro:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-astro-tunnel
+    command: tunnel --no-autoupdate --url http://astro-frontend:4321
+    networks:
+      - app
+    restart: unless-stopped
