@@ -1,9 +1,9 @@
 [submodule "apps/astro-frontend"]
 	path = apps/astro-frontend
-	url = git@github.com:Renzott/astro-coding-challenge-2026.git
+	url = https://github.com/Renzott/astro-coding-challenge-2026.git
 [submodule "apps/express-api"]
 	path = apps/express-api
-	url = git@github.com:Renzott/express-coding-challenge-2026.git
+	url = https://github.com/Renzott/express-coding-challenge-2026.git
 [submodule "apps/fiber-api"]
 	path = apps/fiber-api
-	url = git@github.com:Renzott/golang-coding-challenge-2026.git
+	url = https://github.com/Renzott/golang-coding-challenge-2026.git
