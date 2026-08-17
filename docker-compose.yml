@@ -1,0 +1,114 @@
+name: interseguro-ti-2024
+
+services:
+  fiber-api:
+    container_name: fiber-api
+    build:
+      context: ./apps/fiber-api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: "3001"
+      GO_ENV: development
+      CORS_ORIGIN: "http://localhost:4321,http://127.0.0.1:4321"
+      EXPRESS_API_URL: "http://express-api:3002"
+      DEMO_PASS_CODE: ${DEMO_PASS_CODE:-482916}
+      OTP_SECRET: ${OTP_SECRET:-JBSWY3DPEHPK3PXP}
+      OTP_ISSUER: ${OTP_ISSUER:-Interseguro}
+      OTP_ACCOUNT: ${OTP_ACCOUNT:-register}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
+      JWT_TTL_SECONDS: ${JWT_TTL_SECONDS:-3600}
+    volumes:
+      - ./apps/fiber-api:/app
+      - fiber_gomod:/go/pkg/mod
+      - fiber_gocache:/root/.cache/go-build
+      - fiber_tmp:/app/tmp
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      express-api:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  express-api:
+    container_name: express-api
+    build:
+      context: ./apps/express-api
+      dockerfile: Dockerfile
+      target: development
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: "3002"
+      NODE_ENV: development
+      CORS_ORIGIN: "http://localhost:4321,http://127.0.0.1:4321"
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-me}
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+    volumes:
+      - ./apps/express-api:/app
+      - express_node_modules:/app/node_modules
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3002/health').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  astro-frontend:
+    container_name: astro-frontend
+    build:
+      context: ./apps/astro-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4321:4321"
+    environment:
+      NODE_ENV: development
+      HOST: "0.0.0.0"
+      PORT: "4321"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      ASTRO_TELEMETRY_DISABLED: "1"
+      PUBLIC_FIBER_API_URL: ${PUBLIC_FIBER_API_URL:-http://localhost:3001}
+    volumes:
+      - ./apps/astro-frontend:/app
+      - astro_node_modules:/app/node_modules
+      - astro_cache:/app/.astro
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      fiber-api:
+        condition: service_started
+      express-api:
+        condition: service_started
+
+volumes:
+  fiber_gomod:
+  fiber_gocache:
+  fiber_tmp:
+  express_node_modules:
+  astro_node_modules:
+  astro_cache:
